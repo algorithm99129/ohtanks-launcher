@@ -4,7 +4,9 @@ import './App.css';
 function Hello() {
   return (
     <div>
-      <p>Hello OhTanks</p>
+      <h1 className="bg-gray-500 text-center text-white">
+        Hi Tailwind has been integrated.
+      </h1>
     </div>
   );
 }
