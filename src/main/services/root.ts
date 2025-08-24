@@ -79,6 +79,7 @@ class Root {
 
     this.mainWindow.create();
 
+    // eslint-disable-next-line no-new
     new AppUpdater();
   }
 }

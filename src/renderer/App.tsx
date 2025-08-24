@@ -5,9 +5,11 @@ import AutoResizeLayout from '@/src/renderer/hooks/AutoResizeLayout';
 function Hello() {
   return (
     <WindowFrame>
-      <h1 className="bg-gray-500 text-center text-white">
-        Hi Tailwind has been integrated.
-      </h1>
+      <div className="bg-black h-full">
+        <h1 className="bg-gray-500 text-center text-white">
+          Hi Tailwind has been integrated.
+        </h1>
+      </div>
     </WindowFrame>
   );
 }
