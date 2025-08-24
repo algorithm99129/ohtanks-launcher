@@ -1,18 +1,25 @@
 {
   "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./*"]
+    },
     "incremental": true,
     "target": "es2022",
-    "module": "node16",
+    "module": "commonjs",
     "lib": ["dom", "es2022"],
     "jsx": "react-jsx",
     "strict": true,
     "sourceMap": true,
-    "moduleResolution": "node16",
+    "moduleResolution": "node",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
     "allowJs": true,
-    "outDir": ".erb/dll"
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "outDir": ".erb/dll",
+    "types": ["webpack-env", "node", "reflect-metadata"]
   },
   "exclude": ["test", "release/build", "release/app/dist", ".erb/dll"]
 }

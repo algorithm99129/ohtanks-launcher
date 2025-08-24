@@ -63,6 +63,24 @@ const configuration: webpack.Configuration = {
   module: {
     rules: [
       {
+        test: /\.node$/,
+        use: 'node-loader',
+      },
+      {
+        test: /\.d\.ts$/,
+        loader: 'ignore-loader',
+      },
+      {
+        test: /\.tsx?$/,
+        exclude: [/node_modules/, /\.d\.ts$/],
+        use: {
+          loader: 'ts-loader',
+          options: {
+            transpileOnly: true,
+          },
+        },
+      },
+      {
         test: /\.s?(c|a)ss$/,
         use: [
           'style-loader',
