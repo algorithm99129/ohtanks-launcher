@@ -1,13 +1,17 @@
 import { inject, injectable } from 'inversify';
-import { BrowserWindow, IpcMainEvent, app, ipcMain } from 'electron';
-import { installExtensions, isDebug } from '../util';
+import { BrowserWindow, IpcMainEvent, app, ipcMain, shell } from 'electron';
+import { installExtensions, isDebug } from '../utils';
 import AppUpdater from './updater';
 import { TYPES } from '../container';
 import Window from './windows';
+import AppLauncher from './launcher';
 
 @injectable()
 class Root {
-  constructor(@inject(TYPES.MainWindow) private readonly mainWindow: Window) {
+  constructor(
+    @inject(TYPES.MainWindow) private readonly mainWindow: Window,
+    @inject(TYPES.AppLauncher) private readonly appLauncher: AppLauncher,
+  ) {
     this.registerIpcHandlers();
   }
 
@@ -43,6 +47,32 @@ class Root {
     };
 
     ipcMain.on('window:resize', resizeWindowFromValue.bind(this));
+    ipcMain.on('window:ready', this.appLauncher.run.bind(this.appLauncher));
+
+    /**
+     * Handles opening external URLs in the default browser.
+     * This function is triggered by an IPC event from the renderer process.
+     *
+     * @param event - The IPC event triggering the action.
+     * @param url - The URL to open in the default browser.
+     */
+    const openExternalUrl = (event: IpcMainEvent, url: string): void => {
+      if (url && typeof url === 'string') {
+        shell.openExternal(url);
+      }
+    };
+
+    ipcMain.on('open-external', openExternalUrl.bind(this));
+
+    /**
+     * Handles closing the application.
+     * This function is triggered by an IPC event from the renderer process.
+     */
+    const closeApplication = (): void => {
+      app.quit();
+    };
+
+    ipcMain.on('app:close', closeApplication.bind(this));
   }
 
   /**

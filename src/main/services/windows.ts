@@ -1,6 +1,6 @@
 import { BrowserWindow, app, screen, shell } from 'electron';
 import path from 'path';
-import { getAssetPath, resolveHtmlPath } from '../util';
+import { getAssetPath, resolveHtmlPath } from '../utils';
 import { injectable } from 'inversify';
 
 const DEFAULT_WINDOW_OPTIONS: Electron.BrowserWindowConstructorOptions = {
@@ -12,7 +12,7 @@ const DEFAULT_WINDOW_OPTIONS: Electron.BrowserWindowConstructorOptions = {
     nodeIntegration: false,
     contextIsolation: true,
     preload: app.isPackaged
-      ? path.join(__dirname, '../preload.js')
+      ? path.join(__dirname, './preload.js')
       : path.join(__dirname, '../../.erb/dll/preload.js'),
   },
 };
@@ -138,6 +138,10 @@ class Window {
       this.window = null;
     }
   }
+
+  public send<T>(channel: string, data: T) {
+    if (this.window) this.window.webContents.send(channel, data);
+  }
 }
 
 export default Window;
@@ -145,9 +149,13 @@ export default Window;
 export const createMainWindow = () => {
   return new Window(
     {
-      width: 1350,
+      width: 500,
+      height: 500,
       icon: getAssetPath('icon.png'),
-      minWidth: 1024,
+      minWidth: 500,
+      maxWidth: 500,
+      minHeight: 500,
+      maxHeight: 500,
     },
     'index.html',
   );

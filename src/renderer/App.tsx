@@ -1,18 +1,6 @@
 import { MemoryRouter as Router, Routes, Route } from 'react-router-dom';
-import WindowFrame from './layout/WindowFrame';
 import AutoResizeLayout from '@/src/renderer/hooks/AutoResizeLayout';
-
-function Hello() {
-  return (
-    <WindowFrame>
-      <div className="bg-black h-full">
-        <h1 className="bg-gray-500 text-center text-white">
-          Hi Tailwind has been integrated.
-        </h1>
-      </div>
-    </WindowFrame>
-  );
-}
+import Loader from './pages/Loader';
 
 export default function App() {
   return (
@@ -22,7 +10,7 @@ export default function App() {
           path="/"
           element={
             <AutoResizeLayout>
-              <Hello />
+              <Loader />
             </AutoResizeLayout>
           }
         />
