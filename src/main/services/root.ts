@@ -48,6 +48,10 @@ class Root {
 
     ipcMain.on('window:resize', resizeWindowFromValue.bind(this));
     ipcMain.on('window:ready', this.appLauncher.run.bind(this.appLauncher));
+    ipcMain.on(
+      'launcher:launch',
+      this.appLauncher.launchApplication.bind(this.appLauncher),
+    );
 
     /**
      * Handles opening external URLs in the default browser.

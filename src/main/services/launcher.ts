@@ -584,7 +584,11 @@ class AppLauncher {
     }
   }
 
-  private launchApplication(version: string) {
+  /**
+   * Returns the absolute path to the main executable for a given version,
+   * or null if not found or an error occurs.
+   */
+  private getExecutablePath(version: string): string | null {
     try {
       const versionsPath = path.join(process.cwd(), 'versions');
       const versionPath = path.join(versionsPath, version);
@@ -596,10 +600,10 @@ class AppLauncher {
           'status_message',
           `Version ${version} not found locally`,
         );
-        return false;
+        return null;
       }
 
-      // Look for the main executable in the version directory
+      // List of possible executable filenames
       const possibleExecutables = [
         'ohtanks.exe', // Windows
         'ohtanks.app', // macOS
@@ -609,23 +613,55 @@ class AppLauncher {
         'OhTanks', // Linux with capital
       ];
 
-      let executablePath = null;
-
-      // Look for executables
+      // Look for the first existing executable
       for (const exe of possibleExecutables) {
         const exePath = path.join(versionPath, exe);
         if (fs.existsSync(exePath)) {
-          executablePath = exePath;
-          break;
+          return exePath;
         }
       }
 
-      if (!executablePath) {
-        console.error(`No executable found in version ${version} directory`);
-        this.mainWindow.send(
-          'status_message',
-          `No executable found for version ${version}`,
-        );
+      // No executable found
+      console.error(`No executable found in version ${version} directory`);
+      this.mainWindow.send(
+        'status_message',
+        `No executable found for version ${version}`,
+      );
+      return null;
+    } catch (error) {
+      console.error('Error checking if version can be launched:', error);
+      this.mainWindow.send(
+        'status_message',
+        `Error checking if version can be launched: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
+      return null;
+    }
+  }
+
+  private emitExecutablePathToRenderer(version: string) {
+    const executablePath = this.getExecutablePath(version);
+    this.mainWindow.send('executable_path', executablePath);
+  }
+
+  /**
+   * Launches the application at the given executable path.
+   * The executablePath must be an absolute path to the binary to launch.
+   * The version is inferred from the parent directory of the executable.
+   */
+  public launchApplication(
+    event: Electron.IpcMainEvent,
+    executablePath: string,
+  ): boolean {
+    try {
+      // Infer version and versionPath from the executablePath
+      const versionPath = path.dirname(executablePath);
+      const version = path.basename(versionPath);
+
+      // Sanity check: ensure the executable exists
+      if (!fs.existsSync(executablePath)) {
+        const msg = `Executable not found: ${executablePath}`;
+        console.error(msg);
+        this.mainWindow.send('status_message', msg);
         return false;
       }
 
@@ -655,12 +691,29 @@ class AppLauncher {
         `OhTanks version ${version} launched successfully!`,
       );
 
-      // Close the launcher after 3 seconds
-      setTimeout(() => {
-        console.log('Closing launcher...');
-        this.mainWindow.send('status_message', 'Closing launcher...');
-        this.mainWindow.destroy();
-      }, 3000);
+      // Hide the launcher window when game starts
+      this.mainWindow.hide();
+
+      // Monitor the game process
+      const checkProcess = () => {
+        try {
+          // Check if the process is still running
+          process.kill(child.pid!, 0);
+          // Process is still running, check again in 1 second
+          setTimeout(checkProcess, 1000);
+        } catch (error) {
+          // Process has exited, show the launcher window again
+          console.log('Game process has exited, showing launcher...');
+          this.mainWindow.show();
+          this.mainWindow.send(
+            'status_message',
+            'Game has closed. Launcher ready.',
+          );
+        }
+      };
+
+      // Start monitoring after a short delay to ensure the game has started
+      setTimeout(checkProcess, 2000);
 
       return true;
     } catch (error) {
@@ -707,8 +760,7 @@ class AppLauncher {
         );
       }
 
-      // Launch the latest version
-      this.launchApplication(latestVersion.version);
+      this.emitExecutablePathToRenderer(latestVersion.version);
     } else {
       // If no remote version available, try to launch the latest local version
       if (availableVersions.length > 0) {
@@ -720,7 +772,7 @@ class AppLauncher {
           'status_message',
           `Launching local version ${latestLocalVersion}...`,
         );
-        this.launchApplication(latestLocalVersion);
+        this.emitExecutablePathToRenderer(latestLocalVersion);
       } else {
         console.log('No versions available locally or remotely');
         this.mainWindow.send(

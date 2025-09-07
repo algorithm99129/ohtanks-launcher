@@ -142,6 +142,18 @@ class Window {
   public send<T>(channel: string, data: T) {
     if (this.window) this.window.webContents.send(channel, data);
   }
+
+  public hide() {
+    if (this.window) {
+      this.window.hide();
+    }
+  }
+
+  public show() {
+    if (this.window) {
+      this.window.show();
+    }
+  }
 }
 
 export default Window;
