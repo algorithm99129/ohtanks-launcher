@@ -48,6 +48,7 @@ const Loader = () => {
         <header className="absolute left-0 top-0 w-full flex items-center justify-end font-mono p-1 gap-1">
           <button
             className="w-[40px] h-[40px] flex items-center justify-center hover:bg-blue-500/90 text-white transition-all duration-150 rounded-lg"
+            style={{ WebkitAppRegion: 'no-drag' }}
             title="Discord"
             onClick={() =>
               window.electron.ipcRenderer.sendMessage(
@@ -60,6 +61,7 @@ const Loader = () => {
           </button>
           <button
             className="w-[40px] h-[40px] flex items-center justify-center hover:bg-red-500/90 text-white transition-all duration-150 rounded-lg"
+            style={{ WebkitAppRegion: 'no-drag' }}
             title="Close"
             onClick={() => window.electron.ipcRenderer.sendMessage('app:close')}
           >
@@ -68,7 +70,7 @@ const Loader = () => {
         </header>
         {executablePath && (
           <button
-            className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 group w-[100px] h-[100px] flex items-center justify-center backdrop-blur-xl bg-white/10 border border-white/20 shadow-2xl hover:scale-110 active:scale-95 transition-all duration-300 rounded-full focus:outline-none focus:ring-4 focus:ring-white/30 hover:shadow-[0_0_50px_rgba(59,130,246,0.5)]"
+            className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 group w-[100px] h-[100px] flex items-center justify-center backdrop-blur bg-white/10 border border-white/20 shadow-2xl hover:scale-110 active:scale-95 transition-all duration-300 rounded-full focus:outline-none focus:ring-4 focus:ring-white/30 hover:shadow-[0_0_50px_rgba(59,130,246,0.5)]"
             onClick={handleLaunch}
             title="Play OhTanks!"
             style={{
@@ -76,6 +78,7 @@ const Loader = () => {
                 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)',
               boxShadow:
                 '0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.2)',
+              WebkitAppRegion: 'no-drag',
             }}
           >
             {/* Glass overlay with animated gradient */}
@@ -117,6 +120,7 @@ const Loader = () => {
         <footer className="absolute left-0 bottom-0 w-full h-[50px] flex items-center justify-center">
           <span
             className="text-white cursor-pointer hover:underline transition-colors duration-200 font-mono text-sm"
+            style={{ WebkitAppRegion: 'no-drag' }}
             onClick={() =>
               window.electron.ipcRenderer.sendMessage(
                 'open-external',
